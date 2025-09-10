@@ -1,9 +1,17 @@
 import os
 import json
 import time
+import gzip
 from typing import List, Dict, Any, Optional
 import urllib.request
 import urllib.error
+
+# Try to import brotli for Brotli decompression
+try:
+    import brotli
+    BROTLI_AVAILABLE = True
+except ImportError:
+    BROTLI_AVAILABLE = False
 
 
 class NebulaBlockClient:
@@ -88,9 +96,43 @@ class NebulaBlockClient:
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 body = resp.read()
-                return json.loads(body.decode("utf-8"))
+                
+                # Check if response is compressed and decompress accordingly
+                content_encoding = resp.headers.get('Content-Encoding', '').lower()
+                
+                if content_encoding == 'br' and BROTLI_AVAILABLE:
+                    try:
+                        body = brotli.decompress(body)
+                    except Exception as e:
+                        raise RuntimeError(f"Failed to decompress Brotli response: {e}")
+                elif content_encoding == 'gzip' or body.startswith(b'\x1f\x8b'):
+                    try:
+                        body = gzip.decompress(body)
+                    except Exception as e:
+                        raise RuntimeError(f"Failed to decompress gzip response: {e}")
+                elif content_encoding == 'br' and not BROTLI_AVAILABLE:
+                    raise RuntimeError("Response is Brotli compressed but brotli library is not available. Install with: pip install brotli")
+                
+                # Try to decode with UTF-8, fallback to latin-1 if that fails
+                try:
+                    text = body.decode("utf-8")
+                except UnicodeDecodeError:
+                    text = body.decode("latin-1")
+                
+                # Debug: print response details if it's not valid JSON
+                if not text.strip():
+                    raise RuntimeError(f"Empty response from {url}")
+                
+                try:
+                    return json.loads(text)
+                except json.JSONDecodeError as e:
+                    # If it's not JSON, show what we actually got
+                    raise RuntimeError(f"Invalid JSON response from {url}. Response: {text[:200]}...")
         except urllib.error.HTTPError as e:
-            detail = e.read().decode("utf-8", errors="ignore")
+            try:
+                detail = e.read().decode("utf-8", errors="ignore")
+            except UnicodeDecodeError:
+                detail = e.read().decode("latin-1", errors="ignore")
             # Add a small delay on error to avoid rapid retries
             time.sleep(0.5)
             raise RuntimeError(f"HTTPError {e.code} for {url}: {detail}")
@@ -168,4 +210,12 @@ class NebulaBlockClient:
         content = message.get("content")
         if not isinstance(content, str):
             raise RuntimeError(f"Missing content in chat response: {resp}")
+        
+        # Ensure content is properly decoded
+        if isinstance(content, bytes):
+            try:
+                content = content.decode("utf-8")
+            except UnicodeDecodeError:
+                content = content.decode("latin-1", errors="ignore")
+        
         return content
