@@ -1,0 +1,10 @@
+# Core dependencies for RAG Example
+requests>=2.25.0
+numpy>=1.21.0
+
+# Optional: For better environment variable handling
+python-dotenv>=0.19.0
+
+# Optional: For development and testing
+pytest>=6.0.0
+pytest-asyncio>=0.18.0
