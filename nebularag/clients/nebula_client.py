@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from typing import List, Dict, Any, Optional
 import urllib.request
 import urllib.error
@@ -71,8 +72,18 @@ class NebulaBlockClient:
         url = f"{self.base_url}{path}"
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(url, data=data, method="POST")
+        
+        # Add headers to make the request look more legitimate
         req.add_header("Content-Type", "application/json")
         req.add_header("Authorization", f"Bearer {self.api_key}")
+        req.add_header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        req.add_header("Accept", "application/json")
+        req.add_header("Accept-Language", "en-US,en;q=0.9")
+        req.add_header("Accept-Encoding", "gzip, deflate, br")
+        req.add_header("Connection", "keep-alive")
+        req.add_header("Sec-Fetch-Dest", "empty")
+        req.add_header("Sec-Fetch-Mode", "cors")
+        req.add_header("Sec-Fetch-Site", "cross-site")
 
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
@@ -80,8 +91,11 @@ class NebulaBlockClient:
                 return json.loads(body.decode("utf-8"))
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", errors="ignore")
+            # Add a small delay on error to avoid rapid retries
+            time.sleep(0.5)
             raise RuntimeError(f"HTTPError {e.code} for {url}: {detail}")
         except urllib.error.URLError as e:
+            time.sleep(0.5)
             raise RuntimeError(f"URLError for {url}: {e}")
 
     # ---------------------------- Embeddings -------------------------- #
