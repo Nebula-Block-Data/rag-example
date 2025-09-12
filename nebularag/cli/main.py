@@ -89,6 +89,12 @@ Examples:
         print("Initializing NebulaBlock client...")
         client = build_client_from_env()
         
+        print("Model Configuration:")
+        print(f"  Embedding Model: {client.embedding_model}")
+        print(f"  Reranker Model:  {client.reranker_model}")
+        print(f"  Chat Model:      {client.chat_model}")
+        print()
+        
         print("Setting up RAG pipeline...")
         rag = RAGPipeline(
             client,
@@ -120,6 +126,16 @@ Examples:
         for i, src in enumerate(result["sources"], start=1):
             first_line = src.splitlines()[0] if src.splitlines() else src[:80]
             print(f"{i}. {first_line[:120]}{'...' if len(first_line) > 120 else ''}")
+        
+        print("\n" + "="*60)
+        print("MODELS USED:")
+        print("="*60)
+        if "models" in result:
+            print(f"Embedding Model: {result['models']['embedding']}")
+            print(f"Reranker Model:  {result['models']['reranker']}")
+            print(f"Chat Model:      {result['models']['chat']}")
+        else:
+            print("Model information not available in response")
             
     except (FileNotFoundError, ValueError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)

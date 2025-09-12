@@ -36,6 +36,11 @@ def main():
         
         # Initialize client
         client = NebulaBlockClient()
+        print(f"Using models:")
+        print(f"  Embedding: {client.embedding_model}")
+        print(f"  Reranker:  {client.reranker_model}")
+        print(f"  Chat:      {client.chat_model}")
+        print()
         
         # Create RAG pipeline
         rag = RAGPipeline(
@@ -76,6 +81,13 @@ def main():
         for i, source in enumerate(result["sources"], 1):
             preview = source[:100] + "..." if len(source) > 100 else source
             print(f"{i}. {preview}")
+        
+        print(f"\nModels Used:")
+        print("-" * 40)
+        if "models" in result:
+            print(f"  Embedding: {result['models']['embedding']}")
+            print(f"  Reranker:  {result['models']['reranker']}")
+            print(f"  Chat:      {result['models']['chat']}")
         
         return 0
         

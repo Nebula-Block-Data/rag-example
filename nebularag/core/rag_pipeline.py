@@ -71,5 +71,14 @@ class RAGPipeline:
 
         output = self.client.chat(messages, temperature=0.2)
         sources = [self.store.texts[i] for i in final_indices]
-        return {"answer": output, "sources": sources, "indices": final_indices}
+        return {
+            "answer": output, 
+            "sources": sources, 
+            "indices": final_indices,
+            "models": {
+                "embedding": self.client.embedding_model,
+                "reranker": self.client.reranker_model,
+                "chat": self.client.chat_model
+            }
+        }
 
