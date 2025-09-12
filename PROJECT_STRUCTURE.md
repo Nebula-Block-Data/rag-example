@@ -32,7 +32,8 @@ rag-example/
 │   ├── __init__.py
 │   └── basic_usage.py                 # Basic usage example
 ├── 📁 docs/                           # Documentation
-│   └── sample.md                      # Sample document
+│   ├── sample.md                      # Sample markdown document
+│   └── sample_ml_guide.pdf            # Sample PDF document
 ├── 📁 scripts/                        # Utility scripts
 │   └── test_nebula.py                 # Legacy test script
 ├── .env.example                       # Environment template
@@ -73,7 +74,7 @@ rag-example/
 - `settings.py`: Environment variable handling and validation
 
 #### **Utilities (`rag_example.utils`)**
-- `file_utils.py`: File reading and validation
+- `file_utils.py`: File reading, validation, and PDF text extraction
 - `text_processing.py`: Text splitting and processing
 
 #### **CLI (`rag_example.cli`)**

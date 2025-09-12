@@ -110,22 +110,22 @@ rag-example/
 
 ### Basic Usage
 
-1. **Prepare your documents**: Place `.txt` or `.md` files in a directory (e.g., `docs/`)
+1. **Prepare your documents**: Place `.txt`, `.md`, or `.pdf` files in a directory (e.g., `docs/`)
 
 2. **Set up environment**: Copy `.env.example` to `.env` and fill in your API credentials
 
 3. **Run the RAG pipeline**:
    ```bash
-   nebularag --docs docs --question "What does the guide say about X?"
+   python -m nebularag.cli.main --docs docs --question "Why machine learning with nebula block?"
    ```
 
 ### Advanced Usage
 
 ```bash
 # Custom chunk size and overlap
-nebularag \
+python -m nebularag.cli.main \
   --docs docs \
-  --question "Your question here" \
+  --question "Why machine learning with nebula block?" \
   --chunk-size 1000 \
   --chunk-overlap 150 \
   --top-k 15 \
@@ -182,7 +182,8 @@ python tests/test_api.py
 ### RAG Pipeline Flow
 
 1. **Document Processing**: 
-   - Reads `.txt` and `.md` files from the specified directory
+   - Reads `.txt`, `.md`, and `.pdf` files from the specified directory
+   - Extracts text content from PDFs using PyPDF2
    - Splits documents into overlapping chunks (default: 800 chars, 120 overlap)
 
 2. **Indexing**:
@@ -224,9 +225,9 @@ The client assumes OpenAI/Cohere-like JSON structures but keeps endpoints config
 
 ```bash
 # With sample documents
-nebularag \
+python -m nebularag.cli.main \
   --docs docs \
-  --question "What is the main topic of the documentation?"
+  --question "Why machine learning with nebula block?"
 ```
 
 ### Example 2: Multi-Question Demo
@@ -314,7 +315,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 1. **ModuleNotFoundError**: Make sure you've installed the package with `pip install -e .`
 2. **API Key Error**: Verify your `NEBULABLOCK_API_KEY` is set correctly
 3. **Connection Error**: Check your `NEBULABLOCK_BASE_URL` and internet connection
-4. **Empty Results**: Ensure your documents directory contains `.txt` or `.md` files
+4. **Empty Results**: Ensure your documents directory contains `.txt`, `.md`, or `.pdf` files
 5. **Compression Error**: Install Brotli with `pip install brotli>=1.0.9`
 6. **Cloudflare Block**: The client automatically uses browser-like headers to bypass this
 
